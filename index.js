@@ -1,7 +1,3 @@
-/*
-http://www.nightmarejs.org/
-*/
-
 var express = require('express')
 var mongoose   = require('mongoose');
 var ObjectID = require('mongodb').ObjectID
@@ -69,7 +65,7 @@ function addRestMethods(router, singularize) {
 
         req.collectionClass.count(query.criteria, function (e, count) {
             // let links
-            if (e) return next(e)
+            if (e) return res.status(400).json(e)
             res.append('X-Total-Count', count)
             /*links = query.links(fullUrl(req), count)
             console.log(links);
@@ -99,7 +95,7 @@ function addRestMethods(router, singularize) {
               }
             })
             find.exec(function (e, results) {
-                if (e) return next(e)
+                if (e) return res.status(400).json(e)
                 res.locals.json = results
                 next()
             })
@@ -111,7 +107,7 @@ function addRestMethods(router, singularize) {
         let obj = new req.collectionClass(req.body);
 
         obj.save(function (e, result) {
-            if (e) return next(e)
+            if (e) return res.status(400).json(e)
             res.append('Location', fullUrl(req) + '/' + result._id)
             res.status(201) // Created
             res.locals.json = result
@@ -133,7 +129,7 @@ function addRestMethods(router, singularize) {
 
     router.get('/:collection/:id', function (req, res, next) {
         req.collectionClass.findOne(req.idMatch, function (e, result) {
-            if (e) return next(e)
+            if (e) return res.status(400).json(e)
             if (!result) res.status(404) // Not Found
             res.locals.json = result
             next()
@@ -149,7 +145,7 @@ function addRestMethods(router, singularize) {
         req.body._id = normalizeId(req.params.id)
 
         req.collectionClass.findByIdAndUpdate(req.body._id, req.body, { new: true }, function (e, result) {
-          if (e) return next(e)
+          if (e) return res.status(400).json(e)
 
           res.locals.json = result
           next()
@@ -161,7 +157,7 @@ function addRestMethods(router, singularize) {
         req.body._id = normalizeId(req.params.id)
 
         req.collectionClass.findByIdAndUpdate(req.body._id, { $set: req.body }, { new: true }, function (e, result) {
-          if (e) return next(e)
+          if (e) return res.status(400).json(e)
 
           res.locals.json = result
           next()
@@ -170,11 +166,11 @@ function addRestMethods(router, singularize) {
 
     router.delete('/:collection/:id', function (req, res, next) {
       req.collectionClass.findOne(req.idMatch, function (e, result) {
-          if (e) return next(e)
+          if (e) return res.status(400).json(e)
           if (!result) res.status(404).send({not_found:true})
           else
             result.remove(function (e, result) {
-                if (e) return next(e)
+                if (e) return res.status(400).json(e)
                 res.status(204).send(); // No Content
             })
       })
