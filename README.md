@@ -22,10 +22,10 @@ The middleware is schema-agnostic, allowing any json document to be persisted an
 | /:collection/:id | GET    | Retrieve a single document  |
 | /:collection/:id | POST   | Method Not Allowed          |
 | /:collection/:id | PUT    | Create or update a document |
-| /:collection/:id | PATCH  | Version 0.9                 |
+| /:collection/:id | PATCH  | In version 0.9              |
 | /:collection/:id | DELETE | Remove a single document    |
-| Cascade post     | POST   | Version 1.0                 |
-| Cascade put      | POST   | Version 1.1                 |
+| Cascade post     | POST   | In Version 1.0              |
+| Cascade put      | POST   | In Version 1.1              |
 
 ## API
 ### expressMongooseRestful(db, options)
