@@ -3,11 +3,16 @@ Node.js package to create an express middleware for a mongo-backed, RESTful API
 
 ```
 var express = require('express')
+
 var expressMongoRest = require('express-mongo-rest')
-var app = express()
-app.use('/api/v1', expressMongoRest('mongodb://localhost:27017/mydb'))
+var mongoose   = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27017/mydb');
+app.use('/api/v1', expressMongoRest());
+
+var app = express();
 var server = app.listen(3000, function () {
-    console.log('Listening on Port', server.address().port)
+    console.log('Listening on Port', server.address().port);
 })
 ```
 The middleware is schema-agnostic, allowing any json document to be persisted and retrieved from mongo.
