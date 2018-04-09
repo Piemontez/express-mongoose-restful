@@ -1,6 +1,6 @@
 {
-  "name": "express-mongoose-rest",
-  "version": "0.8.0",
+  "name": "@thalamus/express-mongoose-rest",
+  "version": "0.8.0-readme",
   "description": "An mongoose RESTful express route.",
   "main": "index.js",
   "repository": {
