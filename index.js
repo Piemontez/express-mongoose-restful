@@ -49,8 +49,12 @@ function addRestMethods(router, singularize) {
     router.param('collection', function collectionParam(req, res, next, collection) {
         res.locals.plural = collection
         res.locals.singular = singularize(collection)
+        res.locals.collectionName = res.locals.singular
+          .split("_")
+          .map(function(word){ return word.charAt(0).toUpperCase() + word.slice(1); })
+          .join("");
 
-        req.collectionClass = mongoose.model(res.locals.plural[0].toUpperCase() + res.locals.plural.slice(1, -1));
+        req.collectionClass = mongoose.model(res.locals.collectionName);
         next()
     })
 

@@ -102,14 +102,16 @@ $.ajax('https://localhost/api/v1/users/2d0aa7b0-cf14-413e-9093-7bbba4f4b220', {
   error: function (xhr, status, err) {...}
 })
 ```
-### Post result with mongoose validation
 
+### Post result with mongoose validation
+```
 var mongoose = require('mongoose');
 var UserSchema = new mongoose.Schema({
   name: { type: String, required: false },
   age: { type: String, required: true },
 }, { collection: 'users' });
 mongoose.model('User', UserSchema);
+```
 
 An example post using jQuery and return the document saved:
 ```
