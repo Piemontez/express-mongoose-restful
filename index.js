@@ -21,7 +21,6 @@ module.exports = function expressMongooseRestful(options) {
     if (options.validator) router.use(options.validator)
 
     addRestMethods(router, options.singularize || inflector.singularize)
-    router.use('/:collection', convertId)
     router.use('/:collection', envelope)
     router.use('/:collection', sendJson)
     return router
@@ -114,8 +113,20 @@ function addRestMethods(router, singularize) {
             if (e) return res.status(400).json(e)
             res.append('Location', fullUrl(req) + '/' + result._id)
             res.status(201) // Created
-            res.locals.json = result
-            next()
+
+            let populate = req.query.populate||'';
+            if (populate.trim().length) {
+              result
+                .populate(populate.split(","))
+                .execPopulate()
+                .then(doc => {
+                  res.locals.json = doc
+                  next()
+                });
+            } else {
+              res.locals.json = doc
+              next()
+            }
         })
     })
 
@@ -151,8 +162,20 @@ function addRestMethods(router, singularize) {
         req.collectionClass.findByIdAndUpdate(req.body._id, req.body, { new: true }, function (e, result) {
           if (e) return res.status(400).json(e)
 
-          res.locals.json = result
-          next()
+          let populate = req.query.populate||'';
+          if (populate.trim().length) {
+            result
+              .populate(populate.split(","))
+              .execPopulate()
+              .then(doc => {
+                res.locals.json = doc
+                next()
+              });
+          } else {
+            res.locals.json = doc
+            next()
+          }
+
         });
     })
 
@@ -183,23 +206,6 @@ function addRestMethods(router, singularize) {
     // TODO: sub-resources (ie., get/post on /:collection/:id/resource)
 
     return router
-}
-
-function convertId(req, res, next) {
-    if (res.locals.json instanceof Array) {
-        res.locals.json.forEach(renameIdKey)
-    } else if (res.locals.json) {
-        renameIdKey(res.locals.json)
-    }
-    next()
-}
-
-function renameIdKey(obj) {
-    if (obj) {
-        obj.id = obj._id
-        delete obj._id
-    }
-    return obj
 }
 
 function isToggled(value, override) {
