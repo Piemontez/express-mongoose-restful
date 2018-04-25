@@ -109,14 +109,13 @@ function addRestMethods(router, singularize) {
         if (!req.body || isEmpty(req.body)) throw { status: 400, message: 'No Request Body' } // Bad Request
         let obj = new req.collectionClass(req.body);
 
-        obj.save(function (e, result) {
+        obj.save(function (e, doc) {
             if (e) return res.status(400).json(e)
-            res.append('Location', fullUrl(req) + '/' + result._id)
             res.status(201) // Created
 
             let populate = req.query.populate||'';
             if (populate.trim().length) {
-              result
+              doc
                 .populate(populate.split(","))
                 .execPopulate()
                 .then(doc => {
