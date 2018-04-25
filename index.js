@@ -70,9 +70,6 @@ function addRestMethods(router, singularize) {
             // let links
             if (e) return res.status(400).json(e)
             res.append('X-Total-Count', count)
-            /*links = query.links(fullUrl(req), count)
-            console.log(links);
-            if (links) res.links(links)*/
             let find = req.collectionClass.find(query.criteria)
             populate.split(',').forEach(value => {
               find.populate(value.trim());
@@ -142,7 +139,15 @@ function addRestMethods(router, singularize) {
     })
 
     router.get('/:collection/:id', function (req, res, next) {
-        req.collectionClass.findOne(req.idMatch, function (e, result) {
+
+        let find = req.collectionClass.findOne(req.idMatch);
+
+        let populate = req.query.populate||'';
+        populate.split(',').forEach(value => {
+          find.populate(value.trim());
+        })
+
+        find.exec(function (e, result) {
             if (e) return res.status(400).json(e)
             if (!result) res.status(404) // Not Found
             res.locals.json = result
