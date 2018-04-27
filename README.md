@@ -31,6 +31,7 @@ The middleware is schema-agnostic, allowing any json document to be persisted an
 | /:collection/:id | DELETE | Remove a single document    |
 | Cascade post     | POST   | In Version 1.0              |
 | Cascade put      | POST   | In Version 1.1              |
+| /:collection/count | GET    | Count the collection        |
 
 ## API
 ### expressMongooseRestful(db, options)

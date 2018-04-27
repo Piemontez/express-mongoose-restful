@@ -62,6 +62,16 @@ function addRestMethods(router, singularize) {
         next()
     })
 
+    router.get('/:collection/count', function (req, res, next) {
+        let populate = req.query.populate||'';
+        let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
+        req.collectionClass.count(query.criteria, function (e, count) {
+            if (e) return res.status(400).json(e)
+
+            res.json({count: count})
+        })
+    })
+
     router.get('/:collection', function (req, res, next) {
         let populate = req.query.populate||'';
         let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
