@@ -186,7 +186,7 @@ function addRestMethods(router, singularize) {
                 next()
               });
           } else {
-            res.locals.json = doc
+            res.locals.json = result
             next()
           }
 
