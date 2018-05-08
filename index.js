@@ -63,7 +63,6 @@ function addRestMethods(router, singularize) {
     })
 
     router.get('/:collection/count', function (req, res, next) {
-        let populate = req.query.populate||'';
         let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
         req.collectionClass.count(query.criteria, function (e, count) {
             if (e) return res.status(400).json(e)
@@ -82,7 +81,12 @@ function addRestMethods(router, singularize) {
             res.append('X-Total-Count', count)
             let find = req.collectionClass.find(query.criteria)
             populate.split(',').forEach(value => {
-              find.populate(value.trim());
+              [path, nextpopulate] = value.trim().split('.');
+
+              let _populate = { path: path.trim() }
+              if (nextpopulate)
+                _populate.populate = { path: nextpopulate };
+              find.populate(_populate);
             })
             Object.entries(query.options).forEach(([key, value]) => {
               switch (key) {
