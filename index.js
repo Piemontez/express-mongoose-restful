@@ -179,6 +179,7 @@ function addRestMethods(router, singularize) {
 
         req.collectionClass.findByIdAndUpdate(req.body._id, req.body, { new: true }, function (e, result) {
           if (e) return res.status(400).json(e)
+          if (!result) return res.status(400).json({errors: {}, message: 'Document not found' });
 
           let populate = req.query.populate||'';
           if (populate.trim().length) {
@@ -213,6 +214,11 @@ function addRestMethods(router, singularize) {
       req.collectionClass.findOne(req.idMatch, function (e, result) {
           if (e) return res.status(400).json(e)
           if (!result) res.status(404).send({not_found:true})
+          else if (!!result.delete)
+            result.delete(function (e, result) {
+                if (e) return res.status(400).json(e)
+                res.status(204).send(); // No Content
+            })
           else
             result.remove(function (e, result) {
                 if (e) return res.status(400).json(e)
