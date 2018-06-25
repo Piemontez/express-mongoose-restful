@@ -83,7 +83,7 @@ function addRestMethods(router, singularize) {
             populate.split(',').forEach(value => {
               [path, nextpopulate] = value.trim().split('.');
 
-              let _populate = { path: path.trim() }
+              let _populate = { path: path.trim().replace('->','.') }
               if (nextpopulate)
                 _populate.populate = { path: nextpopulate };
               find.populate(_populate);
@@ -158,7 +158,12 @@ function addRestMethods(router, singularize) {
 
         let populate = req.query.populate||'';
         populate.split(',').forEach(value => {
-          find.populate(value.trim());
+          [path, nextpopulate] = value.trim().split('.');
+
+          let _populate = { path: path.trim().replace('->','.') }
+          if (nextpopulate)
+            _populate.populate = { path: nextpopulate };
+          find.populate(_populate);
         })
 
         find.exec(function (e, result) {
