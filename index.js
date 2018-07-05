@@ -182,24 +182,28 @@ function addRestMethods(router, singularize) {
         if (!req.body || isEmpty(req.body)) throw { status: 400, message: 'No Request Body' } // Bad Request
         req.body._id = normalizeId(req.params.id)
 
-        req.collectionClass.findByIdAndUpdate(req.body._id, req.body, { new: true }, function (e, result) {
-          if (e) return res.status(400).json(e)
+        req.collectionClass.findById(req.body._id, function (e, result) {
+          if (e) return res.status(400).json(e);
           if (!result) return res.status(400).json({errors: {}, message: 'Document not found' });
 
-          let populate = req.query.populate||'';
-          if (populate.trim().length) {
-            result
-              .populate(populate.split(","))
-              .execPopulate()
-              .then(doc => {
-                res.locals.json = doc
-                next()
-              });
-          } else {
-            res.locals.json = result
-            next()
-          }
+          result.set(req.body);
+          result.save(function (e, result) {
+            if (e) return res.status(400).json(e);
 
+            let populate = req.query.populate||'';
+            if (populate.trim().length) {
+              result
+                .populate(populate.split(","))
+                .execPopulate()
+                .then(doc => {
+                  res.locals.json = doc
+                  next()
+                });
+            } else {
+              res.locals.json = result
+              next()
+            }
+          });
         });
     })
 
