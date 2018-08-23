@@ -73,7 +73,7 @@ function addRestMethods(router, singularize) {
 
     router.get('/:collection', function (req, res, next) {
         let populate = req.query.populate||'';
-        let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
+        let query = query2m(req.query, { ignore: ['envelope', 'populate'] })
 
         req.collectionClass.count(query.criteria, function (e, count) {
             // let links
@@ -126,8 +126,15 @@ function addRestMethods(router, singularize) {
 
             let populate = req.query.populate||'';
             if (populate.trim().length) {
+              populate.split(',').forEach(value => {
+                [path, nextpopulate] = value.trim().split('.');
+
+                let _populate = { path: path.trim().replace('->','.') }
+                if (nextpopulate)
+                  _populate.populate = { path: nextpopulate };
+                doc.populate(_populate);
+              })
               doc
-                .populate(populate.split(","))
                 .execPopulate()
                 .then(doc => {
                   res.locals.json = doc
@@ -192,6 +199,14 @@ function addRestMethods(router, singularize) {
 
             let populate = req.query.populate||'';
             if (populate.trim().length) {
+              populate.split(',').forEach(value => {
+                [path, nextpopulate] = value.trim().split('.');
+
+                let _populate = { path: path.trim().replace('->','.') }
+                if (nextpopulate)
+                  _populate.populate = { path: nextpopulate };
+                result.populate(_populate);
+              })
               result
                 .populate(populate.split(","))
                 .execPopulate()
