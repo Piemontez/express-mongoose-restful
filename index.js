@@ -20,7 +20,7 @@ module.exports = function expressMongooseRestful(options) {
 
     if (options.validator) router.use(options.validator)
 
-    addRestMethods(router, options.singularize || inflector.singularize)
+    addRestMethods(router, options.singularize || inflector.singularize, !!options.reqtofind)
     router.use('/:collection', envelope)
     router.use('/:collection', sendJson)
     return router
@@ -44,7 +44,7 @@ function normalizeId(id) {
     return id;
 }
 
-function addRestMethods(router, singularize) {
+function addRestMethods(router, singularize, reqtofind) {
     router.param('collection', function collectionParam(req, res, next, collection) {
         res.locals.plural = collection
         res.locals.singular = singularize(collection)
@@ -64,6 +64,9 @@ function addRestMethods(router, singularize) {
 
     router.get('/:collection/count', function (req, res, next) {
         let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
+        if (reqtofind)
+          query.criteria._req = req;
+
         req.collectionClass.count(query.criteria, function (e, count) {
             if (e) return res.status(400).json(e)
 
@@ -74,6 +77,8 @@ function addRestMethods(router, singularize) {
     router.get('/:collection', function (req, res, next) {
         let populate = req.query.populate||'';
         let query = query2m(req.query, { ignore: ['envelope', 'populate'] })
+        if (reqtofind)
+          query.criteria._req = req;
 
         req.collectionClass.count(query.criteria, function (e, count) {
             // let links
