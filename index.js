@@ -5,7 +5,25 @@ var query2m = require('query-to-mongo')
 var bodyParser = require('body-parser')
 var inflector = require('inflection')
 
-module.exports = function expressMongooseRestful(options) {
+module.exports = {
+  autoRemoveReqToFind: (Schema) => {
+    Schema.pre('find',  function(next) {
+      let query = this.getQuery();
+      if (!!query._req)
+        delete query._req
+      next();
+    });
+    Schema.pre('count', function(next) {
+      let query = this.getQuery();
+      if (!!query._req)
+        delete query._req
+      next();
+    });
+
+    return Schema;
+  },
+
+  router: (options) => {
     let router
 
     options = options || {}
@@ -24,6 +42,7 @@ module.exports = function expressMongooseRestful(options) {
     router.use('/:collection', envelope)
     router.use('/:collection', sendJson)
     return router
+  }
 }
 
 function isEmpty(obj) {
@@ -61,6 +80,17 @@ function addRestMethods(router, singularize, reqtofind) {
         req.idMatch = { _id: normalizeId(id) }
         next()
     })
+
+    /*if (reqtofind) {
+      let autoremove = {};
+      router.param('collection', function collectionParam(req, res, next, collection) {
+          if (autoremove[res.locals.singular] === undefined && req.collectionClass) {
+            autoremove[res.locals.singular] = true;
+            autoRemoveReqToFind(req.collectionClass.schema);
+          }
+          next();
+      });
+    }*/
 
     router.get('/:collection/count', function (req, res, next) {
         let query = query2m(req.query, { ignore: 'envelope', ignore: 'populate' })
