@@ -24,11 +24,8 @@ module.exports = {
   },
 
   router: (options) => {
-    let router
-
     options = options || {}
-
-    router = express.Router()
+    let router = options.router||express.Router();
 
     router.use(bodyParser.json())
     router.use(function (req, res, next) {
